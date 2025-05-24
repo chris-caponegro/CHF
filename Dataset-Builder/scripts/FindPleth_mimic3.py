@@ -1,8 +1,18 @@
+# This is a script that will look through patients ids from the mimic 3 big query 
+# and determine if they have a pleth wave or not. Results will be saved in Downloads
+# Note: you can search for CHF and healthy pateints just change the file paths (:
 import requests
 from bs4 import BeautifulSoup
 import re
 import time
 import csv
+
+input_file = 'Downloads/CHF_BQ_mimic3.csv'
+input_file = 'Downloads/healthy_BQ_mimic3.csv'
+
+output_file = 'Downloads/CHF_with_pleth_mimic4.csv'
+output_file = 'Downloads/healthy_with_pleth_mimic4.csv'
+
 
 def subject_to_path(subject_id):
     padded = str(subject_id).zfill(6)
@@ -40,7 +50,7 @@ def check_pleth_in_hea(subject_id):
 
 # === Load your CHF SUBJECT_IDs from CSV ===
 chf_subjects = []
-with open('Downloads/CHF_BQ_mimic3.csv', 'r') as f:
+with open(input_file, 'r') as f: #Downloads/healthy_BQ_mimic3.csv
     reader = csv.reader(f)
     next(reader)  # Skip header row
     for row in reader:
@@ -55,9 +65,9 @@ for subject_id in chf_subjects:
     time.sleep(0.5)  # be polite to PhysioNet servers
 
 # === Save results ===
-with open('Downloads/CHF_with_pleth_mimic4.csv', 'w', newline='') as f:
+with open(output_file, 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['SUBJECT_ID', 'HAS_PPG'])
     writer.writerows(results)
 
-print("Finished. Results saved to CHF_with_pleth_mimic4.csv")
+print("Finished. Results saved to %d", output_file)
