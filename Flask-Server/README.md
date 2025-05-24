@@ -1,0 +1,1 @@
+Add description of full setup with AWS including NGINX for proxy server.
