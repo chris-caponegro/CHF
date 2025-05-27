@@ -10,8 +10,8 @@ import csv
 input_file = 'Downloads/CHF_BQ_mimic3.csv'
 #input_file = 'Downloads/healthy_BQ_mimic3.csv'
 
-output_file = 'Downloads/CHF_with_pleth_mimic4.csv'
-#output_file = 'Downloads/healthy_with_pleth_mimic4.csv'
+output_file = 'Downloads/CHF_with_pleth_mimic3.csv'
+#output_file = 'Downloads/healthy_with_pleth_mimic3.csv'
 
 
 def subject_to_path(subject_id):
