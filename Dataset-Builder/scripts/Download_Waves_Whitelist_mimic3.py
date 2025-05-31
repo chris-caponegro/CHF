@@ -8,7 +8,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 # === CONFIG ===
-input_csv = 'Downloads/CHF_with_pleth_mimic4.csv'
+input_csv = 'Downloads/CHF_with_pleth_mimic3_v2.csv'
 output_root = 'Downloads/CHF'
 BASE_URL = 'https://physionet.org/files/mimic3wdb-matched/1.0'
 
