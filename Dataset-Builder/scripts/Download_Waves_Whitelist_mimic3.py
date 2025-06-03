@@ -13,7 +13,7 @@ output_root = 'Downloads/CHF'
 BASE_URL = 'https://physionet.org/files/mimic3wdb-matched/1.0'
 
 # 🔧 Define folder prefixes to include (e.g., ['p00', 'p01', 'p02'])
-folder_whitelist = ['p00', 'p01', 'p02']
+folder_whitelist = ['p01']
 
 # === Robust session with retries ===
 session = requests.Session()
