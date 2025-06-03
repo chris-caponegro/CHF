@@ -1,0 +1,6 @@
+venv/
+Dataset/
+physionet.org/
+Downloads/CHF/
+Downloads/healthy/
+Downloads/PLETH_CSV
