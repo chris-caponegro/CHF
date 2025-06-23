@@ -3,8 +3,10 @@
 
 MAX30105 sensor;
 
-#define SAMPLE_RATE      25
-#define WINDOW_SIZE      512
+#define SAMPLE_RATE      125           // Desired sampling frequency
+#define PULSE_WIDTH      69            // Shortest (fastest) pulse
+#define ADC_RESOLUTION   16            // Fastest ADC conversion
+#define WINDOW_SIZE      512           // Model expects 512-sample windows
 #define SAMPLE_INTERVAL  (1000 / SAMPLE_RATE)
 
 uint16_t ppg_ir[WINDOW_SIZE];
@@ -20,13 +22,18 @@ void setup() {
     while (true);
   }
 
-  sensor.setup();
-  sensor.setPulseAmplitudeRed(0x1F);
-  sensor.setPulseAmplitudeIR(0x1F);
-  sensor.setSampleRate(SAMPLE_RATE);
+  // -------- Sensor Configuration --------
+  // setPulseWidth() indirectly sets ADC resolution.
+  sensor.setup();  // Basic default setup (required)
 
-  Serial.println("✅ Sensor initialized, starting stream...");
+  sensor.setPulseAmplitudeIR(0x1F);    // IR LED brightness
+  sensor.setPulseAmplitudeRed(0x00);   // Disable red LED
+  sensor.setSampleRate(SAMPLE_RATE);   // 125 Hz
+  sensor.setPulseWidth(PULSE_WIDTH);   // 69 μs for fastest ADC response
+
+  Serial.println("✅ Sensor configured for 125 Hz. Streaming...");
 }
+
 
 void loop() {
   unsigned long now = millis();
@@ -34,11 +41,6 @@ void loop() {
   if (now - lastSampleTime >= SAMPLE_INTERVAL && sampleIndex < WINDOW_SIZE) {
     ppg_ir[sampleIndex++] = sensor.getIR();
     lastSampleTime = now;
-
-    // if (sampleIndex % 100 == 0) {
-    //   Serial.print("📈 Sampled: ");
-    //   Serial.println(sampleIndex);
-    // }
   }
 
   if (sampleIndex == WINDOW_SIZE) {
@@ -50,5 +52,5 @@ void loop() {
     sampleIndex = 0;
   }
 
-  yield();
+  yield();  // Allow background tasks
 }
