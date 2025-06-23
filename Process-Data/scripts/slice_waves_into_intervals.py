@@ -5,7 +5,7 @@ from scipy.signal import find_peaks, welch
 from scipy.stats import entropy
 
 def verify_ppg_waveform(wave, fs, min_peaks=3, min_std=0.01, max_entropy=3.5,
-                        freq_range=(0.7, 2.0), verbose=False):
+                        freq_range=(0.5, 2.5), verbose=False):
     if len(wave) < fs * 5:
         if verbose: print("❌ Too short")
         return False, 0.0
