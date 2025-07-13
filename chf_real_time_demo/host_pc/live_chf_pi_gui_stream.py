@@ -12,6 +12,7 @@ from scipy.stats import entropy
 
 # --- Signal Quality Check ---
 def verify_ppg_waveform(wave, fs=50, min_peaks=2, min_std=0.003, max_entropy=4.5, freq_range=(0.5, 2.5)):
+    #return True
     if len(wave) < fs * 5: return False
     if np.std(wave) < min_std: return False
     try:
