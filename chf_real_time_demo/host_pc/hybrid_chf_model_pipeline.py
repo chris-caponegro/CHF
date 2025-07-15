@@ -31,33 +31,47 @@ def window_ppg(ppg, window_size=512):
     return np.array(np.split(ppg[:n_windows * window_size], n_windows))
 
 # --- STEP 2: Feature extraction for XGBoost ---
-def extract_features(windows):
+from scipy.stats import skew, kurtosis
+from scipy.signal import find_peaks
+from scipy.fft import fft, fftfreq
+import numpy as np
+
+def extract_features(windows, fs=50):
     features = []
     for w in windows:
         if len(w) < 10 or np.std(w) < 1e-5 or np.isnan(w).any():
             continue
+
         mean_ppg = np.mean(w)
         std_ppg = np.std(w)
         skew_ppg = skew(w)
         kurt_ppg = kurtosis(w)
+
+        # Time-domain peak features
         peaks, _ = find_peaks(w)
-        peak_intervals = np.diff(peaks)
-        if len(peak_intervals) == 0:
-            mean_interval = std_interval = min_interval = max_interval = 0
-        else:
+        if len(peaks) > 1:
+            peak_intervals = np.diff(peaks) / fs  # convert to seconds
             mean_interval = np.mean(peak_intervals)
             std_interval = np.std(peak_intervals)
             min_interval = np.min(peak_intervals)
             max_interval = np.max(peak_intervals)
-        freqs = np.abs(fft(w))
-        dominant_freq = np.argmax(freqs[:len(freqs)//2])
-        spectral_entropy = -np.sum((freqs/np.sum(freqs)) * np.log2(freqs/np.sum(freqs) + 1e-9))
+        else:
+            mean_interval = std_interval = min_interval = max_interval = 0
+
+        # Frequency-domain features
+        N = len(w)
+        yf = np.abs(fft(w))
+        xf = fftfreq(N, 1/fs)
+        dominant_freq = xf[np.argmax(yf[:N // 2])]
+        spectral_entropy = -np.sum((yf / np.sum(yf)) * np.log2(yf / np.sum(yf) + 1e-9))
+
         features.append([
             mean_ppg, std_ppg, skew_ppg, kurt_ppg,
             mean_interval, std_interval, min_interval, max_interval,
             dominant_freq, spectral_entropy
         ])
     return np.array(features)
+
 
 # --- STEP 3: Train XGBoost model on safe batches ---
 def train_xgboost_safe(X, y, batch_size=100):
@@ -130,7 +144,7 @@ def train_cnn_lstm(X, y, epochs=10, batch_size=32):
 
 # --- STEP 6: Hybrid Inference ---
 def hybrid_predict(ppg_window, xgb_model, cnn_model, threshold_quality=0.3):
-    features = extract_features([ppg_window])
+    features = extract_features([ppg_window], fs=50)
     if features.shape[0] == 0:
         return 0.0
     quality_score = features[0][1]  # std_ppg
